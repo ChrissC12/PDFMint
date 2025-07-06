@@ -1,5 +1,6 @@
 # --- FINAL DEPLOYABLE app.py with JSON Endpoints ---
 
+from flask_cors import CORS
 import os
 import uuid
 import zipfile
@@ -12,6 +13,7 @@ from pdf2image import convert_from_path
 
 # --- Basic Setup ---
 app = Flask(__name__)
+CORS(app)
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-much-better-secret-key-is-needed-for-production'
