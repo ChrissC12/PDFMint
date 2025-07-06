@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Advanced PDF Splitter{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="tool-title">Split PDF</h1>
+        <p class="tool-description">Extract pages into a new PDF or split every page into a separate file.</p>
+        
+        <div id="flash-container"></div>
+        
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('split_tool') }}">
+            <div class="mb-3 text-start">
+                <label for="pdf_file" class="form-label"><strong>1. Select the PDF file to split</strong></label>
+                <input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required accept="application/pdf">
+            </div>
+
+            <div class="mb-3 text-start">
+                <label class="form-label"><strong>2. Choose a split mode</strong></label>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="split_mode" id="split-custom" value="custom" checked>
+                    <label class="form-check-label" for="split-custom"><strong>Extract Pages</strong>: Create a new single PDF from selected pages.</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="split_mode" id="split-all" value="all">
+                    <label class="form-check-label" for="split-all"><strong>Split All Pages</strong>: Create a separate PDF for every page (in a ZIP).</label>
+                </div>
+            </div>
+            
+            <div id="range-input-container" class="mb-3 text-start">
+                <label for="ranges" class="form-label"><strong>3. Enter pages or ranges to extract</strong></label>
+                <input class="form-control form-control-lg" type="text" name="ranges" id="ranges" placeholder="e.g., 1, 3, 5-8" required>
+                <div class="form-text text-start mt-1">Use commas to separate pages or ranges.</div>
+            </div>
+
+            <button type="submit" id="process-btn" class="btn btn-primary">
+                <span class="button-text">Split PDF & Download</span>
+                <div class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const customRadio = document.getElementById('split-custom');
+        const allRadio = document.getElementById('split-all');
+        const rangeContainer = document.getElementById('range-input-container');
+        const rangeInput = document.getElementById('ranges');
+        function toggleRangeInput() {
+            if (customRadio.checked) {
+                rangeContainer.style.display = 'block';
+                rangeInput.required = true;
+            } else {
+                rangeContainer.style.display = 'none';
+                rangeInput.required = false;
+            }
+        }
+        customRadio.addEventListener('change', toggleRangeInput);
+        allRadio.addEventListener('change', toggleRangeInput);
+        toggleRangeInput();
+    });
+</script>
+{% endblock %}

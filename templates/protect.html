@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Protect PDF with a Password{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="card-header text-center p-3">Protect PDF File</h1>
+    <div class="card-body">
+        <p class="text-muted text-center">Encrypt your PDF with a password. This will prevent unauthorized access to the file's content.</p>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-3" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form id="tool-form" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="pdf_file" class="form-label"><strong>1. Select the PDF file to protect</strong></label>
+                <input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required accept="application/pdf">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label"><strong>2. Set a password for your PDF</strong></label>
+                <input class="form-control form-control-lg" type="password" name="password" id="password" required>
+            </div>
+            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
+                <span class="button-text">Protect PDF & Download</span>
+                <div class="spinner-border ms-2 d-none" role="status"><span class="visually-hidden">Loading...</span></div>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
