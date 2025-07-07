@@ -1,6 +1,5 @@
-# --- FINAL DEPLOYABLE app.py with JSON Endpoints ---
+# --- FINAL, FULLY CORRECTED app.py ---
 
-from flask_cors import CORS
 import os
 import uuid
 import zipfile
@@ -13,7 +12,6 @@ from pdf2image import convert_from_path
 
 # --- Basic Setup ---
 app = Flask(__name__)
-CORS(app)
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-much-better-secret-key-is-needed-for-production'
@@ -44,44 +42,39 @@ def parse_page_ranges(range_string, max_pages):
 
 @app.route('/')
 def home():
-    return render_template('index.html') # Now points to the renamed file
+    return render_template('home.html')
 
-# NEW: Dedicated route for downloading files
 @app.route('/download/<filename>')
 def download_file(filename):
     if ".." in filename or filename.startswith("/"):
         return jsonify({'success': False, 'message': 'Invalid filename.', 'category': 'danger'}), 400
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
+
+# --- UPDATED TOOL FUNCTIONS ---
+
 @app.route('/merge', methods=['GET', 'POST'])
 def merge_tool():
     if request.method == 'POST':
         try:
-            if 'pdf_files' not in request.files:
-                raise ValueError('No file part in the request.')
+            if 'pdf_files' not in request.files: raise ValueError('No file part in the request.')
             files = request.files.getlist('pdf_files')
-            if len(files) < 2:
-                raise ValueError('Please select at least two PDF files to merge.')
+            if len(files) < 2: raise ValueError('Please select at least two PDF files to merge.')
 
             merger = PdfWriter()
             for file in files:
                 if file and file.filename.lower().endswith('.pdf'):
                     merger.append(file)
-                else:
-                    raise ValueError(f"Invalid file type: '{file.filename}'.")
+                else: raise ValueError(f"Invalid file type: '{file.filename}'.")
 
             output_filename = f"merged_{uuid.uuid4().hex}.pdf"
             output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
             merger.write(output_path)
             merger.close()
-            
-            return jsonify({
-                'success': True, 'message': 'PDFs successfully merged!', 'category': 'success',
-                'download_url': url_for('download_file', filename=output_filename)
-            })
+            return jsonify({'success': True, 'message': 'PDFs successfully merged!', 'category': 'success', 'download_url': url_for('download_file', filename=output_filename)})
         except Exception as e:
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
-    return render_template('merge.html')
+    return render_template('index.html')
 
 @app.route('/split', methods=['GET', 'POST'])
 def split_tool():
@@ -91,75 +84,41 @@ def split_tool():
             if 'pdf_file' not in request.files: raise ValueError('No file part in the request.')
             file = request.files['pdf_file']
             if not file or file.filename == '': raise ValueError('No file selected.')
-            
             split_mode = request.form.get('split_mode')
-
-            if not file.filename.lower().endswith('.pdf'):
-                raise ValueError('Invalid file type. Please upload a PDF.')
-
+            if not file.filename.lower().endswith('.pdf'): raise ValueError('Invalid file type.')
             reader = PdfReader(file)
             max_pages = len(reader.pages)
 
-            # --- MODE 1: Custom Range to a SINGLE PDF ---
             if split_mode == 'custom':
                 ranges = request.form.get('ranges')
-                if not ranges: raise ValueError('Please specify pages or ranges to extract.')
-                
+                if not ranges: raise ValueError('Please specify pages or ranges.')
                 pages_to_extract = parse_page_ranges(ranges, max_pages)
                 if not pages_to_extract: raise ValueError("No valid pages were selected.")
-                
                 writer = PdfWriter()
-                for page_index in pages_to_extract:
-                    writer.add_page(reader.pages[page_index])
-
+                for page_index in pages_to_extract: writer.add_page(reader.pages[page_index])
                 output_filename = f"extracted_pages_{uuid.uuid4().hex}.pdf"
                 output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-                with open(output_path, "wb") as fp:
-                    writer.write(fp)
-                
-                return jsonify({
-                    'success': True, 'message': f'Successfully extracted {len(pages_to_extract)} pages!', 'category': 'success',
-                    'download_url': url_for('download_file', filename=output_filename)
-                })
+                with open(output_path, "wb") as fp: writer.write(fp)
+                return jsonify({'success': True, 'message': f'Successfully extracted {len(pages_to_extract)} pages!', 'category': 'success', 'download_url': url_for('download_file', filename=output_filename)})
 
-            # --- MODE 2: All Pages to a ZIP File ---
             elif split_mode == 'all':
                 job_id = uuid.uuid4().hex
                 output_dir = os.path.join(app.config['UPLOAD_FOLDER'], job_id)
                 os.makedirs(output_dir)
-
                 for i, page in enumerate(reader.pages):
-                    writer = PdfWriter()
-                    writer.add_page(page)
-                    page_filename = f'page_{i + 1}.pdf'
-                    with open(os.path.join(output_dir, page_filename), 'wb') as output_stream:
-                        writer.write(output_stream)
-
+                    writer = PdfWriter(); writer.add_page(page)
+                    with open(os.path.join(output_dir, f'page_{i + 1}.pdf'), 'wb') as out: writer.write(out)
                 zip_filename = f'split_pages_{job_id}.zip'
                 zip_path = os.path.join(app.config['UPLOAD_FOLDER'], zip_filename)
                 with zipfile.ZipFile(zip_path, 'w') as zipf:
-                    for f in os.listdir(output_dir):
-                        zipf.write(os.path.join(output_dir, f), arcname=f)
-                
-                return jsonify({
-                    'success': True, 'message': f'Successfully split into {max_pages} separate files!', 'category': 'success',
-                    'download_url': url_for('download_file', filename=zip_filename)
-                })
-            
-            else:
-                raise ValueError("Invalid split mode selected.")
-
+                    for f in os.listdir(output_dir): zipf.write(os.path.join(output_dir, f), arcname=f)
+                return jsonify({'success': True, 'message': f'Successfully split into {max_pages} separate files!', 'category': 'success', 'download_url': url_for('download_file', filename=zip_filename)})
+            else: raise ValueError("Invalid split mode selected.")
         except Exception as e:
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
-        
         finally:
-            if output_dir and os.path.exists(output_dir):
-                shutil.rmtree(output_dir)
-
+            if output_dir and os.path.exists(output_dir): shutil.rmtree(output_dir)
     return render_template('split.html')
-
-
-
 
 @app.route('/rotate', methods=['GET', 'POST'])
 def rotate_tool():
@@ -261,8 +220,8 @@ def pdf_to_image_tool():
         except Exception as e:
             return jsonify({'success': False, 'message': f"An error occurred. Ensure poppler is installed and in your PATH. Details: {e}", 'category': 'danger'})
         finally:
-            if input_path: os.remove(input_path)
-            if output_dir: shutil.rmtree(output_dir)
+            if input_path and os.path.exists(input_path): os.remove(input_path)
+            if output_dir and os.path.exists(output_dir): shutil.rmtree(output_dir)
     return render_template('pdf_to_image.html')
 
 @app.route('/protect', methods=['GET', 'POST'])
@@ -313,5 +272,6 @@ def unlock_tool():
     return render_template('unlock.html')
 
 # --- Main Execution ---
-#if __name__ == '__main__':
- #   app.run(host='0.0.0.0', port=5001, debug=True)
+# REMEMBER TO REMOVE OR COMMENT OUT THIS BLOCK BEFORE DEPLOYING
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True)
