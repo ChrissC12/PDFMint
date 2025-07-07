@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/chriss/Desktop/pdf_tool_project/venv
+set -gx VIRTUAL_ENV /home/chriss/Desktop/PDFMint/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

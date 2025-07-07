@@ -1,22 +1,16 @@
-# --- CORE WEB FRAMEWORK ---
-Flask==3.0.2
-gunicorn==22.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.5
-MarkupSafe==2.1.5
-Werkzeug==3.0.6
-click==8.1.8
-
-# --- PDF & IMAGE PROCESSING ---
-pypdf==4.2.0
-Pillow==10.4.0
-pdf2image==1.17.0
-
-# --- FOR CORS SUPPORT ---
-Flask-Cors==4.0.1
-
-# --- FOR CLEANUP ---
-# No explicit library needed, shutil is standard
-
-# --- HELPER LIBRARIES ---
 blinker==1.8.2
+click==8.1.8
+flask==3.0.2
+Flask-Cors==4.0.1
+gunicorn==22.0.0
+importlib-metadata==8.5.0
+itsdangerous==2.2.0
+jinja2==3.1.5
+MarkupSafe==2.1.5
+packaging==25.0
+pdf2image==1.17.0
+pillow==10.4.0
+pypdf==4.2.0
+typing-extensions==4.13.2
+werkzeug==3.0.6
+zipp==3.20.2
