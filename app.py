@@ -120,24 +120,33 @@ def split_tool():
             if output_dir and os.path.exists(output_dir): shutil.rmtree(output_dir)
     return render_template('split.html')
 
+# In app.py, replace the whole rotate_tool function
+
 @app.route('/rotate', methods=['GET', 'POST'])
 def rotate_tool():
     if request.method == 'POST':
+        # --- Simplified Test Logic ---
         try:
-            if 'pdf_file' not in request.files: raise ValueError('No file part.')
-            file, rotation = request.files['pdf_file'], int(request.form.get('rotation', 90))
-            if file.filename == '': raise ValueError('No file selected.')
-            if file.filename.lower().endswith('.pdf'):
-                reader = PdfReader(file)
-                writer = PdfWriter()
-                for page in reader.pages: page.rotate(rotation); writer.add_page(page)
-                output_filename = f"rotated_{uuid.uuid4().hex}.pdf"
-                output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-                with open(output_path, "wb") as fp: writer.write(fp)
-                return jsonify({'success': True, 'message': f'PDF successfully rotated by {rotation} degrees!', 'category': 'success', 'download_url': url_for('download_file', filename=output_filename)})
-            else: raise ValueError('Invalid file type.')
+            # Check if a file was even sent
+            if 'pdf_file' not in request.files:
+                raise ValueError("No PDF file was sent with the request.")
+            
+            # If we get here, the file was sent. Let's just return a success message
+            # without actually processing the file. This isolates the problem.
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Test successful! The server received your file.', 
+                'category': 'success',
+                'download_url': '#' # Dummy URL for now
+            })
+
         except Exception as e:
+            # This will catch ANY error and return it as JSON
+            print(f"!!! EXCEPTION IN ROTATE_TOOL: {e}") # This will show up in your terminal
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
+            
+    # GET request just renders the page
     return render_template('rotate.html')
 
 @app.route('/compress', methods=['GET', 'POST'])
