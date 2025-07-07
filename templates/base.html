@@ -69,9 +69,9 @@
             width: 100%;
             max-width: 600px;
         }
-        .card-header { display: none; } /* We don't use the default header */
+        .card-header { display: none; }
         .card-body {
-            padding: 2.5rem 3rem; /* Adjusted padding */
+            padding: 2.5rem 3rem;
             text-align: center;
         }
         .tool-title {
@@ -152,25 +152,17 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand" href="{{ url_for('home') }}">PDFMint Tools</a>
+    <a class="navbar-brand" href="{{ url_for('home') }}">PDFMint</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <!-- ms-auto pushes the links to the right -->
       <ul class="navbar-nav ms-auto">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('merge_tool') }}">Merge</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('split_tool') }}">Split</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('compress_tool') }}">Compress</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('protect_tool') }}">Protect</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('image_to_pdf_tool') }}">Image to PDF</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('rotate_tool') }}">Rotate</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('pdf_to_image_tool') }}">PDF to Image</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('unlock_tool') }}">Unlock</a></li>
-
-
-        
-
       </ul>
     </div>
   </div>
@@ -182,16 +174,15 @@
 </main>
 
 <footer class="footer">
-    <small>PDFMint</small>
+    <small>© 2024 PDFMint</small>
 </footer>
 
 
-<!-- JAVASCRIPT FOR INSTANT FEEDBACK (Goes at the bottom) -->
-<!-- In templates/base.html, at the bottom of the file -->
+<!-- FINAL JAVASCRIPT BLOCK WITH CORS FIX -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toolForm = document.getElementById('tool-form');
-        if (!toolForm) return; // Exit if no form on the page
+        if (!toolForm) return;
 
         const cardBody = toolForm.closest('.card-body');
         let flashContainer = cardBody.querySelector('#flash-container');
@@ -233,38 +224,30 @@
             if (spinner) spinner.classList.remove('d-none');
             flashContainer.innerHTML = '';
 
-            // --- START OF THE CORRECTED CODE ---
             const formData = new FormData(toolForm);
             
-            // 1. Define your live backend URL
-            const backendApiUrl = 'https://pdfmint-3.onrender.com';
+            // This is the critical fix for the live server
+            const fullApiUrl = new URL(toolForm.action, window.location.origin).href;
             
-            // 2. Get the specific tool's path (e.g., '/merge', '/split') from the form's action attribute
-            const toolPath = new URL(toolForm.action).pathname;
-
-            // 3. Construct the full, absolute URL for the API request
-            const fullApiUrl = backendApiUrl + toolPath;
-            
-            console.log("Sending API request to:", fullApiUrl); // A helpful debug message
+            console.log("Sending fetch request to:", fullApiUrl);
 
             fetch(fullApiUrl, {
                 method: 'POST',
                 body: formData
             })
-            // --- END OF THE CORRECTED CODE ---
-
             .then(response => {
-                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || `Server error: ${response.status}`); });
+                }
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
                     showFlashMessage(data.message, data.category);
-                    // For the download, we must also use the full backend URL
-                    const downloadUrl = backendApiUrl + data.download_url;
+                    const downloadUrl = new URL(data.download_url, window.location.origin).href;
                     const link = document.createElement('a');
                     link.href = downloadUrl;
-                    link.download = ''; // Let the browser handle the filename
+                    link.download = '';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -274,7 +257,7 @@
             })
             .catch(error => {
                 console.error('Submission Error:', error);
-                showFlashMessage('An application error occurred. Please try again.', 'danger');
+                showFlashMessage(error.message || 'An application error occurred. Please try again.', 'danger');
             })
             .finally(() => {
                 resetButton();
@@ -282,5 +265,6 @@
         });
     });
 </script>
+
 </body>
 </html>
