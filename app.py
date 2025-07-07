@@ -273,5 +273,5 @@ def unlock_tool():
 
 # --- Main Execution ---
 # REMEMBER TO REMOVE OR COMMENT OUT THIS BLOCK BEFORE DEPLOYING
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+#if __name__ == '__main__':
+  #  app.run(host='0.0.0.0', port=5001, debug=True)
