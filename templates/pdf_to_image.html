@@ -1,38 +1,15 @@
 {% extends "base.html" %}
-{% block title %}PDF to Image Converter{% endblock %}
-
+{% block title %}PDF to Image Converter - PDFMint{% endblock %}
 {% block content %}
 <div class="card">
-    <h1 class="card-header text-center p-3">Convert PDF to Images</h1>
     <div class="card-body">
-        <p class="text-muted text-center">Convert each page of your PDF into a high-quality JPG or PNG image. The result will be delivered as a ZIP file.</p>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} mt-3" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <form id="tool-form" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="pdf_file" class="form-label"><strong>1. Select the PDF file to convert</strong></label>
-                <input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required accept="application/pdf">
-            </div>
-            <div class="mb-3">
-                <label for="format" class="form-label"><strong>2. Choose an image format</strong></label>
-                <select class="form-select form-select-lg" name="format" id="format">
-                    <option value="jpeg" selected>JPG - Best for photos, smaller size</option>
-                    <option value="png">PNG - Best for text/graphics, transparent background</option>
-                </select>
-            </div>
-            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
-                <span class="button-text">Convert to Images & Download ZIP</span>
-                <div class="spinner-border ms-2 d-none" role="status"><span class="visually-hidden">Loading...</span></div>
-            </button>
+        <h1 class="tool-title">PDF to Image</h1>
+        <p class="tool-description">Convert each page of your PDF into high-quality JPG or PNG images. Results are delivered in a ZIP file.</p>
+        <div id="flash-container"></div>
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('pdf_to_image_tool') }}">
+            <div class="mb-3 text-start"><label for="pdf_file" class="form-label"><strong>1. Select the PDF file to convert</strong></label><input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required accept="application/pdf"></div>
+            <div class="mb-3 text-start"><label for="format" class="form-label"><strong>2. Choose an image format</strong></label><select class="form-select form-select-lg" name="format" id="format"><option value="jpeg" selected>JPG - Best for photos, smaller size</option><option value="png">PNG - Best for text/graphics</option></select></div>
+            <button type="submit" id="process-btn" class="btn btn-primary"><span class="button-text">Convert to Images & Download ZIP</span><div class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div></button>
         </form>
     </div>
 </div>

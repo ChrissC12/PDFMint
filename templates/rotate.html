@@ -1,48 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Rotate PDF Pages{% endblock %}
-
+{% block title %}Rotate PDF Pages - PDFMint{% endblock %}
 {% block content %}
 <div class="card">
-    <h1 class="card-header text-center p-3">PDF Rotator</h1>
     <div class="card-body">
-        <p class="text-muted text-center">Rotate all pages in a PDF file by 90, 180, or 270 degrees.</p>
-        
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="alert alert-danger" role="alert">
-              {% for message in messages %}{{ message }}<br>{% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
-        <form id="tool-form" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="pdf_file" class="form-label"><strong>1. Select the PDF file to rotate</strong></label>
-                <input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required>
-            </div>
-            
-            <div class="mb-3">
+        <h1 class="tool-title">Rotate PDF</h1>
+        <p class="tool-description">Easily fix the orientation of scanned documents by rotating all pages at once.</p>
+        <div id="flash-container"></div>
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('rotate_tool') }}">
+            <div class="mb-3 text-start"><label for="pdf_file" class="form-label"><strong>1. Select the PDF file to rotate</strong></label><input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required accept="application/pdf"></div>
+            <div class="mb-3 text-start">
                 <label class="form-label"><strong>2. Select rotation angle</strong></label>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="rotation" id="rot90" value="90" checked>
-                    <label class="form-check-label" for="rot90">90 degrees clockwise</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="rotation" id="rot180" value="180">
-                    <label class="form-check-label" for="rot180">180 degrees</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="rotation" id="rot270" value="270">
-                    <label class="form-check-label" for="rot270">270 degrees clockwise (90 counter-clockwise)</label>
-                </div>
+                <div class="form-check"><input class="form-check-input" type="radio" name="rotation" id="rot90" value="90" checked><label class="form-check-label" for="rot90">90 degrees clockwise</label></div>
+                <div class="form-check"><input class="form-check-input" type="radio" name="rotation" id="rot180" value="180"><label class="form-check-label" for="rot180">180 degrees</label></div>
+                <div class="form-check"><input class="form-check-input" type="radio" name="rotation" id="rot270" value="270"><label class="form-check-label" for="rot270">270 degrees clockwise</label></div>
             </div>
-
-            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
-                <span class="button-text">Rotate PDF & Download</span>
-                <div class="spinner-border ms-2 d-none" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </button>
+            <button type="submit" id="process-btn" class="btn btn-primary"><span class="button-text">Rotate PDF & Download</span><div class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div></button>
         </form>
     </div>
 </div>

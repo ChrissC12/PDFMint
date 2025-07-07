@@ -1,33 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Image to PDF Converter{% endblock %}
-
+{% block title %}Image to PDF Converter - PDFMint{% endblock %}
 {% block content %}
 <div class="card">
-    <h1 class="card-header text-center p-3">Convert Images to PDF</h1>
     <div class="card-body">
-        <p class="text-muted text-center">Convert JPG, PNG, and other image formats into a single PDF file.</p>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}" role="alert">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <form id="tool-form" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="image_files" class="form-label"><strong>1. Select your image files (JPG, PNG, etc.)</strong></label>
-                <!-- The 'accept="image/*"' attribute suggests to the browser to only show image files -->
-                <input class="form-control form-control-lg" type="file" name="image_files" id="image_files" multiple required accept="image/*">
-                <div class="form-text">The images will be added to the PDF in the order you select them.</div>
-            </div>
-            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
-                <span class="button-text">Convert to PDF & Download</span>
-                <div class="spinner-border ms-2 d-none" role="status"><span class="visually-hidden">Loading...</span></div>
-            </button>
+        <h1 class="tool-title">Image to PDF</h1>
+        <p class="tool-description">Convert JPG, PNG, and other image formats into a single, easy-to-share PDF document.</p>
+        <div id="flash-container"></div>
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('image_to_pdf_tool') }}">
+            <div class="mb-3 text-start"><label for="image_files" class="form-label"><strong>1. Select your image files</strong></label><input class="form-control form-control-lg" type="file" name="image_files" id="image_files" multiple required accept="image/*"></div>
+            <button type="submit" id="process-btn" class="btn btn-primary"><span class="button-text">Convert to PDF & Download</span><div class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div></button>
         </form>
     </div>
 </div>

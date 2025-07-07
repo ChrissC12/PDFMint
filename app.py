@@ -19,6 +19,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-much-better-secret-key-is-needed-for-production'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+
 # --- Helper Function for Splitting ---
 def parse_page_ranges(range_string, max_pages):
     pages_to_extract = set()
@@ -72,7 +73,7 @@ def merge_tool():
             return jsonify({'success': True, 'message': 'PDFs successfully merged!', 'category': 'success', 'download_url': url_for('download_file', filename=output_filename)})
         except Exception as e:
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
-    return render_template('index.html')
+    return render_template('merge.html')
 
 @app.route('/split', methods=['GET', 'POST'])
 def split_tool():
@@ -269,6 +270,6 @@ def unlock_tool():
     return render_template('unlock.html')
 
 # --- Main Execution ---
-# This block is for local development only. Render will use Gunicorn.
-#if __name__ == '__main__':
- #   app.run(host='0.0.0.0', port=5001, debug=True)
+# REMOVE OR COMMENT OUT THIS BLOCK BEFORE PUSHING TO GITHUB/RENDER
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=5001, debug=True)

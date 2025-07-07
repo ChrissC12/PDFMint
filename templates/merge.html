@@ -1,37 +1,20 @@
 {% extends "base.html" %}
-
-{% block title %}PDF Merger Tool{% endblock %}
-
+{% block title %}Merge PDF Files - PDFMint{% endblock %}
 {% block content %}
 <div class="card">
-    <h1 class="card-header text-center p-3">Secure PDF Merger</h1>
     <div class="card-body">
-        <p class="text-muted text-center">Combine multiple PDFs into a single file. Your files are processed securely and never stored.</p>
-        
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="alert alert-danger" role="alert">
-              {% for message in messages %}
-                {{ message }}<br>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
-        <!-- CHANGE 1: Added an ID to the form -->
-        <form id="tool-form" method="post" action="{{ url_for('merge_tool') }}" enctype="multipart/form-data">
-            <div class="mb-3">
+        <h1 class="tool-title">Merge PDF</h1>
+        <p class="tool-description">Combine multiple PDF files into one single, organized document. Simple, fast, and secure.</p>
+        <div id="flash-container"></div>
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('merge_tool') }}">
+            <div class="mb-3 text-start">
                 <label for="pdf_files" class="form-label"><strong>1. Select your PDF files (at least two)</strong></label>
-                <input class="form-control form-control-lg" type="file" name="pdf_files" id="pdf_files" multiple required>
-                <div class="form-text">The files will be merged in the order you select them.</div>
+                <input class="form-control form-control-lg" type="file" name="pdf_files" id="pdf_files" multiple required accept="application/pdf">
+                <div class="form-text text-start mt-1">Files will be merged in the order you select them.</div>
             </div>
-            
-            <!-- CHANGE 2: Updated the button structure -->
-            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
+            <button type="submit" id="process-btn" class="btn btn-primary">
                 <span class="button-text">Merge PDFs & Download</span>
-                <div class="spinner-border ms-2 d-none" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+                <div class="spinner-border spinner-border-sm ms-2 d-none" role="status"></div>
             </button>
         </form>
     </div>
