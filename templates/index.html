@@ -1,39 +1,80 @@
 {% extends "base.html" %}
-
-{% block title %}PDF Merger Tool{% endblock %}
+{% block title %}PDFMint{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="card-header text-center p-3">Secure PDF Merger</h1>
-    <div class="card-body">
-        <p class="text-muted text-center">Combine multiple PDFs into a single file. Your files are processed securely and never stored.</p>
-        
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="alert alert-danger" role="alert">
-              {% for message in messages %}
-                {{ message }}<br>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
 
-        <!-- CHANGE 1: Added an ID to the form -->
-        <form id="tool-form" method="post" action="{{ url_for('merge_tool') }}" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="pdf_files" class="form-label"><strong>1. Select your PDF files (at least two)</strong></label>
-                <input class="form-control form-control-lg" type="file" name="pdf_files" id="pdf_files" multiple required>
-                <div class="form-text">The files will be merged in the order you select them.</div>
-            </div>
-            
-            <!-- CHANGE 2: Updated the button structure -->
-            <button type="submit" id="process-btn" class="btn btn-primary mt-3 w-100 p-2 fs-5 d-flex justify-content-center align-items-center">
-                <span class="button-text">Merge PDFs & Download</span>
-                <div class="spinner-border ms-2 d-none" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </button>
-        </form>
+<!-- ================================== -->
+<!-- HERO SECTION -->
+<!-- ================================== -->
+<div class="container px-4 py-5 text-center hero-section">
+    <h1 class="display-3">PDFMint</h1>
+    <p class="lead mt-3 mb-4">Simple, fast, and beautiful tools to handle all your PDF needs. No clutter, just results.</p>
+    <a href="#tools" class="btn btn-primary btn-lg">View All Tools</a>
+</div>
+
+
+<!-- ================================== -->
+<!-- TOOLS SECTION -->
+<!-- ================================== -->
+<div class="container px-4 py-5" id="tools">
+    <div class="tools-grid-container">
+        <!-- Merge PDF -->
+        <div class="tool-card">
+            <i class="bi-union icon"></i>
+            <h4>Merge PDF</h4>
+            <p>Combine multiple PDF files into one single, organized document.</p>
+            <a href="{{ url_for('merge_tool') }}" class="btn btn-primary mt-auto">Go to Merger</a>
+        </div>
+        <!-- Split PDF -->
+        <div class="tool-card">
+            <i class="bi-scissors icon"></i>
+            <h4>Split PDF</h4>
+            <p>Extract pages or split an entire document into separate files.</p>
+            <a href="{{ url_for('split_tool') }}" class="btn btn-primary mt-auto">Go to Splitter</a>
+        </div>
+        <!-- Rotate PDF -->
+        <div class="tool-card">
+            <i class="bi-arrow-clockwise icon"></i>
+            <h4>Rotate PDF</h4>
+            <p>Easily fix the orientation of scanned documents with a single click.</p>
+            <a href="{{ url_for('rotate_tool') }}" class="btn btn-primary mt-auto">Go to Rotator</a>
+        </div>
+        <!-- Compress PDF -->
+        <div class="tool-card">
+            <i class="bi-file-earmark-zip-fill icon"></i>
+            <h4>Compress PDF</h4>
+            <p>Drastically reduce file size while optimizing for the best quality.</p>
+            <a href="{{ url_for('compress_tool') }}" class="btn btn-primary mt-auto">Go to Compressor</a>
+        </div>
+        <!-- Image to PDF -->
+        <div class="tool-card">
+            <i class="bi-image-fill icon"></i>
+            <h4>Image to PDF</h4>
+            <p>Convert JPG, PNG, and other common image formats into a PDF.</p>
+            <a href="{{ url_for('image_to_pdf_tool') }}" class="btn btn-primary mt-auto">Go to Converter</a>
+        </div>
+        <!-- PDF to Image -->
+        <div class="tool-card">
+            <i class="bi-file-earmark-image-fill icon"></i>
+            <h4>PDF to Image</h4>
+            <p>Convert each page of a PDF into separate JPG or PNG images.</p>
+            <a href="{{ url_for('pdf_to_image_tool') }}" class="btn btn-primary mt-auto">Go to Converter</a>
+        </div>
+        <!-- Protect PDF -->
+        <div class="tool-card">
+            <i class="bi-lock-fill icon"></i>
+            <h4>Protect PDF</h4>
+            <p>Encrypt your PDF with a password to prevent unauthorized access.</p>
+            <a href="{{ url_for('protect_tool') }}" class="btn btn-primary mt-auto">Go to Protector</a>
+        </div>
+        <!-- Unlock PDF -->
+        <div class="tool-card">
+            <i class="bi-unlock-fill icon"></i>
+            <h4>Unlock PDF</h4>
+            <p>Remove the password from a protected PDF file. You must know the password.</p>
+            <a href="{{ url_for('unlock_tool') }}" class="btn btn-primary mt-auto">Go to Unlocker</a>
+        </div>
     </div>
 </div>
+
 {% endblock %}

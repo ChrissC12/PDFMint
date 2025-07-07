@@ -44,7 +44,7 @@ def parse_page_ranges(range_string, max_pages):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('index.html') # Now points to the renamed file
 
 # NEW: Dedicated route for downloading files
 @app.route('/download/<filename>')
@@ -81,7 +81,7 @@ def merge_tool():
             })
         except Exception as e:
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
-    return render_template('index.html')
+    return render_template('merge.html')
 
 @app.route('/split', methods=['GET', 'POST'])
 def split_tool():
