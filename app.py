@@ -1,4 +1,4 @@
-# --- FINAL, FULLY CORRECTED app.py ---
+# --- FINAL DEPLOYABLE app.py ---
 
 import os
 import uuid
@@ -6,19 +6,18 @@ import zipfile
 import subprocess
 import shutil
 from flask import Flask, request, render_template, send_from_directory, url_for, jsonify
+from flask_cors import CORS
 from pypdf import PdfWriter, PdfReader
 from PIL import Image
 from pdf2image import convert_from_path
-from flask_cors import CORS
 
 # --- Basic Setup ---
 app = Flask(__name__)
-CORS(app)
+CORS(app) # Enable CORS for the entire application
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-much-better-secret-key-is-needed-for-production'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
 
 # --- Helper Function for Splitting ---
 def parse_page_ranges(range_string, max_pages):
@@ -49,11 +48,8 @@ def home():
 @app.route('/download/<filename>')
 def download_file(filename):
     if ".." in filename or filename.startswith("/"):
-        return jsonify({'success': False, 'message': 'Invalid filename.', 'category': 'danger'}), 400
+        return jsonify({'success': False, 'message': 'Invalid filename.'}), 400
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-
-
-# --- UPDATED TOOL FUNCTIONS ---
 
 @app.route('/merge', methods=['GET', 'POST'])
 def merge_tool():
@@ -83,16 +79,15 @@ def split_tool():
     if request.method == 'POST':
         output_dir = None
         try:
-            if 'pdf_file' not in request.files: raise ValueError('No file part in the request.')
-            file = request.files['pdf_file']
+            if 'pdf_file' not in request.files: raise ValueError('No file part.')
+            file, split_mode = request.files['pdf_file'], request.form.get('split_mode')
             if not file or file.filename == '': raise ValueError('No file selected.')
-            split_mode = request.form.get('split_mode')
             if not file.filename.lower().endswith('.pdf'): raise ValueError('Invalid file type.')
             reader = PdfReader(file)
             max_pages = len(reader.pages)
 
             if split_mode == 'custom':
-                ranges = request.form.get('ranges')
+                ranges = request.form.get('ranges');
                 if not ranges: raise ValueError('Please specify pages or ranges.')
                 pages_to_extract = parse_page_ranges(ranges, max_pages)
                 if not pages_to_extract: raise ValueError("No valid pages were selected.")
@@ -122,33 +117,24 @@ def split_tool():
             if output_dir and os.path.exists(output_dir): shutil.rmtree(output_dir)
     return render_template('split.html')
 
-# In app.py, replace the whole rotate_tool function
-
 @app.route('/rotate', methods=['GET', 'POST'])
 def rotate_tool():
     if request.method == 'POST':
-        # --- Simplified Test Logic ---
         try:
-            # Check if a file was even sent
-            if 'pdf_file' not in request.files:
-                raise ValueError("No PDF file was sent with the request.")
-            
-            # If we get here, the file was sent. Let's just return a success message
-            # without actually processing the file. This isolates the problem.
-            
-            return jsonify({
-                'success': True, 
-                'message': 'Test successful! The server received your file.', 
-                'category': 'success',
-                'download_url': '#' # Dummy URL for now
-            })
-
+            if 'pdf_file' not in request.files: raise ValueError('No file part.')
+            file, rotation = request.files['pdf_file'], int(request.form.get('rotation', 90))
+            if file.filename == '': raise ValueError('No file selected.')
+            if file.filename.lower().endswith('.pdf'):
+                reader = PdfReader(file)
+                writer = PdfWriter()
+                for page in reader.pages: page.rotate(rotation); writer.add_page(page)
+                output_filename = f"rotated_{uuid.uuid4().hex}.pdf"
+                output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+                with open(output_path, "wb") as fp: writer.write(fp)
+                return jsonify({'success': True, 'message': f'PDF successfully rotated by {rotation} degrees!', 'category': 'success', 'download_url': url_for('download_file', filename=output_filename)})
+            else: raise ValueError('Invalid file type.')
         except Exception as e:
-            # This will catch ANY error and return it as JSON
-            print(f"!!! EXCEPTION IN ROTATE_TOOL: {e}") # This will show up in your terminal
             return jsonify({'success': False, 'message': str(e), 'category': 'danger'})
-            
-    # GET request just renders the page
     return render_template('rotate.html')
 
 @app.route('/compress', methods=['GET', 'POST'])
@@ -283,6 +269,6 @@ def unlock_tool():
     return render_template('unlock.html')
 
 # --- Main Execution ---
-# REMEMBER TO REMOVE OR COMMENT OUT THIS BLOCK BEFORE DEPLOYING
+# This block is for local development only. Render will use Gunicorn.
 #if __name__ == '__main__':
-  #  app.run(host='0.0.0.0', port=5001, debug=True)
+ #   app.run(host='0.0.0.0', port=5001, debug=True)
