@@ -9,9 +9,11 @@ from flask import Flask, request, render_template, send_from_directory, url_for,
 from pypdf import PdfWriter, PdfReader
 from PIL import Image
 from pdf2image import convert_from_path
+from flask_cors import CORS
 
 # --- Basic Setup ---
 app = Flask(__name__)
+CORS(app)
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'a-much-better-secret-key-is-needed-for-production'
