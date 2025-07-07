@@ -189,7 +189,7 @@
           
         
 
-        <form id="tool-form" method="post" enctype="multipart/form-data">
+        <form id="tool-form" method="post" enctype="multipart/form-data" action="{{ url_for('compress_tool') }}">
             <div class="mb-3">
                 <label for="pdf_file" class="form-label"><strong>1. Select the PDF file to compress</strong></label>
                 <input class="form-control form-control-lg" type="file" name="pdf_file" id="pdf_file" required>
