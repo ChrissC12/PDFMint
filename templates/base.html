@@ -187,17 +187,17 @@
 
 
 <!-- JAVASCRIPT FOR INSTANT FEEDBACK (Goes at the bottom) -->
+<!-- In templates/base.html, at the bottom of the file -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toolForm = document.getElementById('tool-form');
-        if (!toolForm) return;
+        if (!toolForm) return; // Exit if no form on the page
 
         const cardBody = toolForm.closest('.card-body');
         let flashContainer = cardBody.querySelector('#flash-container');
         if (!flashContainer) {
             flashContainer = document.createElement('div');
             flashContainer.id = 'flash-container';
-            // Insert after the description, before the form
             const description = cardBody.querySelector('.tool-description');
             if (description) {
                 description.insertAdjacentElement('afterend', flashContainer);
@@ -214,7 +214,6 @@
         function showFlashMessage(message, category) {
             flashContainer.innerHTML = '';
             const alertDiv = document.createElement('div');
-            // Remove top margin from alert and add bottom margin
             alertDiv.className = `alert alert-${category} mb-3`;
             alertDiv.role = 'alert';
             alertDiv.textContent = message;
@@ -234,11 +233,26 @@
             if (spinner) spinner.classList.remove('d-none');
             flashContainer.innerHTML = '';
 
+            // --- START OF THE CORRECTED CODE ---
             const formData = new FormData(toolForm);
-            fetch(toolForm.action, {
+            
+            // 1. Define your live backend URL
+            const backendApiUrl = 'https://pdfmint-3.onrender.com';
+            
+            // 2. Get the specific tool's path (e.g., '/merge', '/split') from the form's action attribute
+            const toolPath = new URL(toolForm.action).pathname;
+
+            // 3. Construct the full, absolute URL for the API request
+            const fullApiUrl = backendApiUrl + toolPath;
+            
+            console.log("Sending API request to:", fullApiUrl); // A helpful debug message
+
+            fetch(fullApiUrl, {
                 method: 'POST',
                 body: formData
             })
+            // --- END OF THE CORRECTED CODE ---
+
             .then(response => {
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
                 return response.json();
@@ -246,9 +260,11 @@
             .then(data => {
                 if (data.success) {
                     showFlashMessage(data.message, data.category);
+                    // For the download, we must also use the full backend URL
+                    const downloadUrl = backendApiUrl + data.download_url;
                     const link = document.createElement('a');
-                    link.href = data.download_url;
-                    link.download = data.filename || '';
+                    link.href = downloadUrl;
+                    link.download = ''; // Let the browser handle the filename
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -266,6 +282,5 @@
         });
     });
 </script>
-
 </body>
 </html>
